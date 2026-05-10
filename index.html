@@ -486,27 +486,20 @@ const weeks = [
         ]
       },
       {
-        name: 'Saturday, May 30',
-        type: 'weekend',
+        name: 'Mon–Thu, May 26–29 (evenings)',
+        type: 'weekday',
         tasks: [
+          { text: 'Evening task: pack bedroom dresser contents (use garbage bags for clothes still on hangers)', tag: 'bedroom' },
+          { text: 'Evening task: pack remaining pots/pans and any kitchen stragglers', tag: 'kitchen' },
           { text: 'Pack PS5 and gaming accessories into a "Gaming Console" box', tag: 'living' },
           { text: 'Pack the gaming table session items into the "TTRPG" box', tag: 'living' },
           { text: 'Pack most bathroom under-sink cleaning products → "Cleaning Supplies" box', tag: 'bath' },
           { text: 'Pack extra/backup toiletries under the sink', tag: 'bath' },
           { text: 'Pack extra towels — keep out 2 for daily use', tag: 'bath' },
-          { text: 'Use your suitcase: start loading it with your "open first" essentials (dog food, daily meds, chargers, one set of everything)', tag: 'dog' },
-        ]
-      },
-      {
-        name: 'Mon–Fri, May 26–29',
-        type: 'weekday',
-        tasks: [
-          { text: 'Evening task: pack bedroom dresser contents (use garbage bags for clothes still on hangers)', tag: 'bedroom' },
-          { text: 'Evening task: pack remaining pots/pans and any kitchen stragglers', tag: 'kitchen' },
           { text: 'Confirm moving truck/movers are booked and confirmed', tag: 'admin' },
           { text: 'Notify USPS of address change (takes effect in ~2 weeks)', tag: 'admin' },
           { text: 'Update address: bank, insurance, subscriptions, prescriptions', tag: 'admin' },
-          { text: 'Deep clean the laundry room shelf and pack remaining supplies', tag: 'admin' },
+          { text: 'Use your suitcase: load it with your "open first" essentials (dog food, daily meds, chargers, one set of everything)', tag: 'dog' },
         ]
       }
     ],
@@ -516,49 +509,53 @@ const weeks = [
     id: 'w4',
     label: 'Move Week',
     title: 'Move Week',
-    dates: 'May 31 – Move Day',
-    subtitle: 'Final push. Strip it down to bare essentials and get out clean.',
+    dates: 'May 29 – 30',
+    subtitle: 'Settlement on Friday afternoon, then the big move Saturday. You\'re almost there.',
     days: [
       {
-        name: 'Sun–Tue, May 31 – Jun 2',
+        name: 'Friday, May 29 — Settlement Day 🔑',
         type: 'weekday',
         tasks: [
-          { text: 'Pack the gaming table (disassemble legs if needed)', tag: 'living' },
-          { text: 'Pack the TV from the bedroom (use TV box if you have it, or moving blanket)', tag: 'bedroom' },
-          { text: 'Disconnect washer/dryer hoses and let dry overnight before moving', tag: 'admin' },
-          { text: 'Eat through the fridge — donate or toss anything that won\'t survive the move', tag: 'kitchen' },
-          { text: 'Pack remaining kitchen essentials (you\'re eating takeout or very simple meals now)', tag: 'kitchen' },
-          { text: 'Disassemble office standing desk (take photos of cable routing before unplugging everything)', tag: 'office' },
+          { text: 'Settlement at 2pm — bring ID, checkbook/wire confirmation, and any required documents', tag: 'admin' },
+          { text: 'After settlement: do a first walkthrough of the new house — note anything that needs attention before boxes arrive', tag: 'admin' },
+          { text: 'Drop off cleaning supplies at the new house so it\'s ready to clean before boxes come in', tag: 'admin' },
+          { text: 'Set up the dog\'s area at the new house (water bowl, bed) so he has a safe spot tomorrow', tag: 'dog' },
+          { text: 'If time allows: move a carload of plants and fragile items you want to transport yourself', tag: 'living' },
+          { text: 'Back at the apartment: defrost and wipe out fridge, leave doors open overnight', tag: 'kitchen' },
+          { text: 'Confirm all boxes are labeled and staged near the front door', tag: 'admin' },
+          { text: 'Charge all devices overnight', tag: 'admin' },
         ]
       },
       {
-        name: 'Day Before Move',
+        name: 'Friday Night — Night Before 🌙',
         type: 'weekday',
         tasks: [
-          { text: 'Pack bedroom daily items: nightstand contents, chargers, meds (put meds in your personal bag)', tag: 'bedroom' },
-          { text: 'Pack the bathroom vanity counter (Waterpik, electric toothbrush, skincare) — leave out only what you need in the morning', tag: 'bath' },
+          { text: 'Pack bedroom daily items: nightstand contents, chargers, meds (keep meds in your personal bag)', tag: 'bedroom' },
+          { text: 'Pack the bathroom vanity counter (Waterpik, toothbrush, skincare) — leave out only what you need in the morning', tag: 'bath' },
           { text: 'Pack shower products', tag: 'bath' },
-          { text: 'Pack dog supplies except: food for tomorrow, leash, one bowl, and his bed', tag: 'dog' },
-          { text: 'Defrost and wipe out fridge (leave doors open overnight)', tag: 'kitchen' },
-          { text: 'Confirm all boxes are labeled and staged near the door', tag: 'admin' },
-          { text: 'Charge all your devices overnight', tag: 'admin' },
+          { text: 'Pack dog supplies except: food for morning, leash, one bowl, and his bed', tag: 'dog' },
+          { text: 'Disassemble office standing desk (photo the cable routing first)', tag: 'office' },
+          { text: 'Pack the gaming table (disassemble legs if needed)', tag: 'living' },
+          { text: 'Deep clean the laundry room shelf and pack remaining supplies', tag: 'admin' },
         ]
       },
       {
-        name: 'Move Day 🚛',
+        name: 'Saturday, May 30 — Move Day 🚛',
         type: 'moveday',
         tasks: [
           { text: 'Pack final bathroom items (toothbrush, towel, soap) into your personal bag', tag: 'bath' },
           { text: 'Strip and bag the bedding — mattress goes last onto the truck', tag: 'bedroom' },
+          { text: 'Pack the TV from the bedroom (moving blanket or TV box)', tag: 'bedroom' },
+          { text: 'Disconnect washer/dryer if they\'re coming with you', tag: 'admin' },
           { text: 'Do a full walkthrough: every cabinet, drawer, closet shelf, bathroom cabinet', tag: 'admin' },
           { text: 'Check: under beds, behind doors, laundry room, inside washer/dryer', tag: 'admin' },
-          { text: 'Put dog in a safe room or with someone while movers are in and out', tag: 'dog' },
+          { text: 'Put the dog somewhere safe while movers are in and out', tag: 'dog' },
           { text: 'Your car carries: the suitcase, dog, plants, medications, laptop, valuables', tag: 'admin' },
-          { text: 'Lock up and do one final look from the doorway', tag: 'admin' },
+          { text: 'Lock up the apartment and do one final look from the doorway', tag: 'admin' },
         ]
       }
     ],
-    tip: '🎉 You\'ve got this. The last day always feels chaotic — that\'s normal. If boxes are labeled, the new house will sort itself out over the first week.'
+    tip: '🎉 Congrats on the new house! Settlement day will feel surreal — save some energy for Friday night because Saturday comes fast. If boxes are labeled, the new house will sort itself out over the first week.'
   }
 ];
 
