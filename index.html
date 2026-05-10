@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moving Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: #2e2e2e;
+    --accent: #e8c547;
+    --accent2: #4fc3a1;
+    --accent3: #e06c75;
+    --text: #e8e8e0;
+    --muted: #666;
+    --done-bg: #1a1a1a;
+    --done-text: #3a3a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 32px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .header-left p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .progress-wrap {
+    text-align: right;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .progress-bar-outer {
+    width: 180px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* WEEK TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 24px 32px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 20px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* WEEK PANELS */
+  .week-panel { display: none; padding: 32px; }
+  .week-panel.active { display: block; }
+
+  .week-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .week-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .week-dates {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .week-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-weight: 300;
+  }
+
+  /* DAY BLOCKS */
+  .day-block {
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+
+  .day-header:hover { background: var(--surface2); }
+
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .day-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  .badge-weekend { background: rgba(232,197,71,0.15); color: var(--accent); }
+  .badge-weekday { background: rgba(79,195,161,0.12); color: var(--accent2); }
+  .badge-moveday { background: rgba(224,108,117,0.15); color: var(--accent3); }
+
+  .day-progress {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .day-chevron {
+    color: var(--muted);
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+  }
+
+  .day-block.collapsed .day-chevron { transform: rotate(-90deg); }
+
+  .day-tasks {
+    padding: 4px 0 8px;
+    background: var(--bg);
+  }
+
+  .day-block.collapsed .day-tasks { display: none; }
+
+  /* TASK ITEMS */
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .task:last-child { border-bottom: none; }
+  .task:hover { background: rgba(255,255,255,0.02); }
+
+  .task-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .task.done .task-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .task.done .task-check::after {
+    content: '✓';
+    font-size: 10px;
+    color: #0f0f0f;
+    font-weight: 700;
+  }
+
+  .task-text {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text);
+    transition: color 0.2s;
+    flex: 1;
+  }
+
+  .task.done .task-text {
+    color: var(--done-text);
+    text-decoration: line-through;
+    text-decoration-color: #333;
+  }
+
+  .task-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .tag-living { background: rgba(79,195,161,0.1); color: var(--accent2); }
+  .tag-office { background: rgba(232,197,71,0.1); color: var(--accent); }
+  .tag-bedroom { background: rgba(180,130,255,0.1); color: #b482ff; }
+  .tag-kitchen { background: rgba(224,108,117,0.12); color: var(--accent3); }
+  .tag-bath { background: rgba(100,180,255,0.1); color: #64b4ff; }
+  .tag-closet { background: rgba(255,160,100,0.1); color: #ffa064; }
+  .tag-admin { background: rgba(150,150,150,0.1); color: #aaa; }
+  .tag-dog { background: rgba(255,200,100,0.1); color: #ffc864; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 18px 4px;
+  }
+
+  /* TIPS BOX */
+  .tip-box {
+    background: rgba(232,197,71,0.06);
+    border: 1px solid rgba(232,197,71,0.15);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 24px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .tip-box strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* RESET */
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Moving Checklist</h1>
+    <p>Apartment → House · 3–4 Week Plan</p>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">Overall Progress</div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="globalBar"></div>
+    </div>
+    <div class="progress-count" id="globalCount">0 / 0</div>
+    <button class="reset-btn" onclick="resetAll()">Reset All</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+<div id="panels"></div>
+
+<script>
+const weeks = [
+  {
+    id: 'w1',
+    label: 'Week 1',
+    title: 'Week One',
+    dates: 'May 10 – 16',
+    subtitle: 'Start the easy wins. Focus on things you definitely won\'t need before the move.',
+    days: [
+      {
+        name: 'Sunday, May 10',
+        type: 'weekend',
+        tasks: [
+          { text: 'Buy supplies: boxes (various sizes), wardrobe boxes, packing tape, bubble wrap, packing paper, markers', tag: 'admin' },
+          { text: 'Photograph your cork board before unpinning anything', tag: 'office' },
+          { text: 'Pack all board games from the living room shelves — label boxes by shelf (Shelf A, B, C…)', tag: 'living' },
+          { text: 'Pack big-box heavy games (Gloomhaven-sized) separately — their own box', tag: 'living' },
+          { text: 'Pack RPG books, Daggerheart materials, and campaign documents into a "TTRPG" box', tag: 'office' },
+          { text: 'Unpin cork board and carefully pack or roll the Witherwild map', tag: 'office' },
+        ]
+      },
+      {
+        name: 'Saturday, May 16',
+        type: 'weekend',
+        tasks: [
+          { text: 'Pack wall art from the living room (large black abstract canvas)', tag: 'living' },
+          { text: 'Pack wall art from the home office (framed forest print, metal starburst sculpture)', tag: 'office' },
+          { text: 'Pack wall art from the bathroom', tag: 'bath' },
+          { text: 'Pack the printer (wrap well or use original box)', tag: 'office' },
+          { text: 'Pack extra blankets and throws from the living room', tag: 'living' },
+          { text: 'Label all packed boxes clearly with room + contents', tag: 'admin' },
+        ]
+      },
+      {
+        name: 'Mon–Fri, May 11–15',
+        type: 'weekday',
+        tasks: [
+          { text: 'Each evening (15–20 min): pack one kitchen cabinet of dishes or mugs you won\'t use this week', tag: 'kitchen' },
+          { text: 'Eat down pantry food intentionally — plan meals around what\'s already there', tag: 'kitchen' },
+          { text: 'Sort through dresser drawers — donate anything you haven\'t worn in a year', tag: 'bedroom' },
+          { text: 'Collect all packing materials in one staging area so you\'re ready for next weekend', tag: 'admin' },
+        ]
+      }
+    ],
+    tip: '💡 The board games alone will probably fill 8–12 boxes. Getting those done first clears the most visual clutter and gives you a huge sense of momentum.'
+  },
+  {
+    id: 'w2',
+    label: 'Week 2',
+    title: 'Week Two',
+    dates: 'May 17 – 23',
+    subtitle: 'Hit the kitchen hard and clear out closets. Keep only what you\'ll actively use.',
+    days: [
+      {
+        name: 'Sunday, May 17',
+        type: 'weekend',
+        tasks: [
+          { text: 'Pack most kitchen dishes — keep out 2 plates, 2 bowls, 2 mugs, basic utensils', tag: 'kitchen' },
+          { text: 'Pack glassware using cell/divider boxes (buy these specifically — worth it)', tag: 'kitchen' },
+          { text: 'Wrap and pack spice jars individually in packing paper', tag: 'kitchen' },
+          { text: 'Pack second/backup coffee maker and any rarely-used kitchen appliances', tag: 'kitchen' },
+          { text: 'Pack pantry dry goods you\'re not eating this week', tag: 'kitchen' },
+          { text: 'Pack large wall clock from the kitchen area', tag: 'kitchen' },
+        ]
+      },
+      {
+        name: 'Saturday, May 23',
+        type: 'weekend',
+        tasks: [
+          { text: 'Hall/entry closet: box top-shelf items (ArmorAll kit, utility supplies) → label "Garage/Car"', tag: 'closet' },
+          { text: 'Hall/entry closet: bag off-season or rarely-worn jackets for wardrobe box', tag: 'closet' },
+          { text: 'Hall/entry closet: pair and bag all shoes', tag: 'closet' },
+          { text: 'Bedroom closet: seal and label any boxes already sitting in there', tag: 'closet' },
+          { text: 'Pack extra bedding from bedroom closet top shelf', tag: 'closet' },
+          { text: 'Start packing laundry room shelf: OttLite lamp, extra TP/paper towels → "Bathroom Supplies" box', tag: 'bath' },
+        ]
+      },
+      {
+        name: 'Mon–Fri, May 19–22',
+        type: 'weekday',
+        tasks: [
+          { text: 'Each evening: pack one more kitchen cabinet or drawer (cookware, baking items, etc.)', tag: 'kitchen' },
+          { text: 'Box up under-sink kitchen cleaning supplies (leave out what you\'ll need through the move)', tag: 'kitchen' },
+          { text: 'Pack any decorative items or knickknacks still sitting out in common areas', tag: 'living' },
+          { text: 'Start setting packed boxes in a designated staging zone (ideally near the front door)', tag: 'admin' },
+        ]
+      }
+    ],
+    tip: '💡 Keep your "kitchen essentials" kit visible and separate: 2 of everything, one pot, one pan, the coffee maker you use daily. Everything else can go.'
+  },
+  {
+    id: 'w3',
+    label: 'Week 3',
+    title: 'Week Three',
+    dates: 'May 24 – 30',
+    subtitle: 'Tackle the tech, bedroom, and bathroom. The apartment should start feeling empty.',
+    days: [
+      {
+        name: 'Sunday, May 24',
+        type: 'weekend',
+        tasks: [
+          { text: 'Pack dual monitors: bubble wrap each screen, box together with arms detached', tag: 'office' },
+          { text: 'Pack all desk cables and peripherals into a "Tech/Cables" box — label which device each cable belongs to', tag: 'office' },
+          { text: 'Pack the Razer subwoofer and any desk accessories', tag: 'office' },
+          { text: 'Unscrew and pack bedroom wall sconce lights (put hardware in a labeled bag taped to the lamp)', tag: 'bedroom' },
+          { text: 'Pack bedroom wall art (the two framed prints above the bed)', tag: 'bedroom' },
+          { text: 'Pack extra pillows and any comforter you\'re not actively using', tag: 'bedroom' },
+        ]
+      },
+      {
+        name: 'Saturday, May 30',
+        type: 'weekend',
+        tasks: [
+          { text: 'Pack PS5 and gaming accessories into a "Gaming Console" box', tag: 'living' },
+          { text: 'Pack the gaming table session items into the "TTRPG" box', tag: 'living' },
+          { text: 'Pack most bathroom under-sink cleaning products → "Cleaning Supplies" box', tag: 'bath' },
+          { text: 'Pack extra/backup toiletries under the sink', tag: 'bath' },
+          { text: 'Pack extra towels — keep out 2 for daily use', tag: 'bath' },
+          { text: 'Use your suitcase: start loading it with your "open first" essentials (dog food, daily meds, chargers, one set of everything)', tag: 'dog' },
+        ]
+      },
+      {
+        name: 'Mon–Fri, May 26–29',
+        type: 'weekday',
+        tasks: [
+          { text: 'Evening task: pack bedroom dresser contents (use garbage bags for clothes still on hangers)', tag: 'bedroom' },
+          { text: 'Evening task: pack remaining pots/pans and any kitchen stragglers', tag: 'kitchen' },
+          { text: 'Confirm moving truck/movers are booked and confirmed', tag: 'admin' },
+          { text: 'Notify USPS of address change (takes effect in ~2 weeks)', tag: 'admin' },
+          { text: 'Update address: bank, insurance, subscriptions, prescriptions', tag: 'admin' },
+          { text: 'Deep clean the laundry room shelf and pack remaining supplies', tag: 'admin' },
+        ]
+      }
+    ],
+    tip: '💡 The suitcase trick: pack one rolling suitcase as your "hotel bag" — everything you need for the first 48 hours at the new house. It goes in your car, not the truck.'
+  },
+  {
+    id: 'w4',
+    label: 'Move Week',
+    title: 'Move Week',
+    dates: 'May 31 – Move Day',
+    subtitle: 'Final push. Strip it down to bare essentials and get out clean.',
+    days: [
+      {
+        name: 'Sun–Tue, May 31 – Jun 2',
+        type: 'weekday',
+        tasks: [
+          { text: 'Pack the gaming table (disassemble legs if needed)', tag: 'living' },
+          { text: 'Pack the TV from the bedroom (use TV box if you have it, or moving blanket)', tag: 'bedroom' },
+          { text: 'Disconnect washer/dryer hoses and let dry overnight before moving', tag: 'admin' },
+          { text: 'Eat through the fridge — donate or toss anything that won\'t survive the move', tag: 'kitchen' },
+          { text: 'Pack remaining kitchen essentials (you\'re eating takeout or very simple meals now)', tag: 'kitchen' },
+          { text: 'Disassemble office standing desk (take photos of cable routing before unplugging everything)', tag: 'office' },
+        ]
+      },
+      {
+        name: 'Day Before Move',
+        type: 'weekday',
+        tasks: [
+          { text: 'Pack bedroom daily items: nightstand contents, chargers, meds (put meds in your personal bag)', tag: 'bedroom' },
+          { text: 'Pack the bathroom vanity counter (Waterpik, electric toothbrush, skincare) — leave out only what you need in the morning', tag: 'bath' },
+          { text: 'Pack shower products', tag: 'bath' },
+          { text: 'Pack dog supplies except: food for tomorrow, leash, one bowl, and his bed', tag: 'dog' },
+          { text: 'Defrost and wipe out fridge (leave doors open overnight)', tag: 'kitchen' },
+          { text: 'Confirm all boxes are labeled and staged near the door', tag: 'admin' },
+          { text: 'Charge all your devices overnight', tag: 'admin' },
+        ]
+      },
+      {
+        name: 'Move Day 🚛',
+        type: 'moveday',
+        tasks: [
+          { text: 'Pack final bathroom items (toothbrush, towel, soap) into your personal bag', tag: 'bath' },
+          { text: 'Strip and bag the bedding — mattress goes last onto the truck', tag: 'bedroom' },
+          { text: 'Do a full walkthrough: every cabinet, drawer, closet shelf, bathroom cabinet', tag: 'admin' },
+          { text: 'Check: under beds, behind doors, laundry room, inside washer/dryer', tag: 'admin' },
+          { text: 'Put dog in a safe room or with someone while movers are in and out', tag: 'dog' },
+          { text: 'Your car carries: the suitcase, dog, plants, medications, laptop, valuables', tag: 'admin' },
+          { text: 'Lock up and do one final look from the doorway', tag: 'admin' },
+        ]
+      }
+    ],
+    tip: '🎉 You\'ve got this. The last day always feels chaotic — that\'s normal. If boxes are labeled, the new house will sort itself out over the first week.'
+  }
+];
+
+const tagLabels = {
+  living: 'Living Rm',
+  office: 'Office',
+  bedroom: 'Bedroom',
+  kitchen: 'Kitchen',
+  bath: 'Bathroom',
+  closet: 'Closet',
+  admin: 'Admin',
+  dog: 'Pup'
+};
+
+const storage = {};
+let totalTasks = 0;
+let doneTasks = 0;
+
+function getKey(weekId, dayIdx, taskIdx) {
+  return `${weekId}-${dayIdx}-${taskIdx}`;
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('moving_checklist');
+    if (saved) Object.assign(storage, JSON.parse(saved));
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('moving_checklist', JSON.stringify(storage));
+  } catch(e) {}
+}
+
+function updateGlobal() {
+  doneTasks = Object.values(storage).filter(Boolean).length;
+  const pct = totalTasks ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  document.getElementById('globalBar').style.width = pct + '%';
+  document.getElementById('globalCount').textContent = `${doneTasks} / ${totalTasks}`;
+}
+
+function updateDayProgress(weekId, dayIdx) {
+  const week = weeks.find(w => w.id === weekId);
+  const day = week.days[dayIdx];
+  const done = day.tasks.filter((_, ti) => storage[getKey(weekId, dayIdx, ti)]).length;
+  const el = document.getElementById(`dayprog-${weekId}-${dayIdx}`);
+  if (el) el.textContent = `${done}/${day.tasks.length}`;
+}
+
+function toggleTask(weekId, dayIdx, taskIdx) {
+  const key = getKey(weekId, dayIdx, taskIdx);
+  storage[key] = !storage[key];
+  saveState();
+  const el = document.getElementById(`task-${key}`);
+  if (el) el.classList.toggle('done', storage[key]);
+  updateDayProgress(weekId, dayIdx);
+  updateGlobal();
+}
+
+function toggleDay(weekId, dayIdx) {
+  const block = document.getElementById(`dayblock-${weekId}-${dayIdx}`);
+  if (block) block.classList.toggle('collapsed');
+}
+
+function resetAll() {
+  if (!confirm('Reset all checkboxes?')) return;
+  Object.keys(storage).forEach(k => delete storage[k]);
+  saveState();
+  document.querySelectorAll('.task.done').forEach(el => el.classList.remove('done'));
+  weeks.forEach(w => w.days.forEach((_, di) => updateDayProgress(w.id, di)));
+  updateGlobal();
+}
+
+function switchTab(weekId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.week === weekId));
+  document.querySelectorAll('.week-panel').forEach(p => p.classList.toggle('active', p.dataset.week === weekId));
+}
+
+function render() {
+  loadState();
+
+  // Count total
+  weeks.forEach(w => w.days.forEach(d => totalTasks += d.tasks.length));
+
+  const tabsEl = document.getElementById('tabs');
+  const panelsEl = document.getElementById('panels');
+
+  weeks.forEach((week, wi) => {
+    // Tab
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (wi === 0 ? ' active' : '');
+    tab.dataset.week = week.id;
+    tab.textContent = week.label;
+    tab.onclick = () => switchTab(week.id);
+    tabsEl.appendChild(tab);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.className = 'week-panel' + (wi === 0 ? ' active' : '');
+    panel.dataset.week = week.id;
+
+    panel.innerHTML = `
+      <div class="week-header">
+        <div class="week-title">${week.title}</div>
+        <div class="week-dates">${week.dates}</div>
+      </div>
+      <div class="week-subtitle">${week.subtitle}</div>
+    `;
+
+    week.days.forEach((day, di) => {
+      const block = document.createElement('div');
+      block.className = 'day-block';
+      block.id = `dayblock-${week.id}-${di}`;
+
+      const typeClass = day.type === 'weekend' ? 'badge-weekend' : day.type === 'moveday' ? 'badge-moveday' : 'badge-weekday';
+      const typeLabel = day.type === 'weekend' ? 'Weekend' : day.type === 'moveday' ? 'Move Day' : 'Weekday';
+
+      const done = day.tasks.filter((_, ti) => storage[getKey(week.id, di, ti)]).length;
+
+      block.innerHTML = `
+        <div class="day-header" onclick="toggleDay('${week.id}', ${di})">
+          <div class="day-name">
+            ${day.name}
+            <span class="day-badge ${typeClass}">${typeLabel}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="day-progress"><span id="dayprog-${week.id}-${di}">${done}/${day.tasks.length}</span> done</div>
+            <div class="day-chevron">▾</div>
+          </div>
+        </div>
+        <div class="day-tasks"></div>
+      `;
+
+      const tasksEl = block.querySelector('.day-tasks');
+      day.tasks.forEach((task, ti) => {
+        const key = getKey(week.id, di, ti);
+        const isDone = !!storage[key];
+        const item = document.createElement('div');
+        item.className = 'task' + (isDone ? ' done' : '');
+        item.id = `task-${key}`;
+        item.onclick = () => toggleTask(week.id, di, ti);
+        item.innerHTML = `
+          <div class="task-check"></div>
+          <div class="task-text">${task.text}</div>
+          <span class="task-tag tag-${task.tag}">${tagLabels[task.tag]}</span>
+        `;
+        tasksEl.appendChild(item);
+      });
+
+      panel.appendChild(block);
+    });
+
+    // Tip
+    if (week.tip) {
+      const tip = document.createElement('div');
+      tip.className = 'tip-box';
+      tip.innerHTML = `<strong>Pro Tip</strong>${week.tip}`;
+      panel.appendChild(tip);
+    }
+
+    panelsEl.appendChild(panel);
+  });
+
+  updateGlobal();
+}
+
+render();
+</script>
+</body>
+</html>
